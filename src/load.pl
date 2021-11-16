@@ -11,6 +11,14 @@ version('0.1.0').
 optspecs(
   [
     [
+      opt(translator),
+      type(atom),
+      shortflags([t]),
+      longflags([translator]),
+      default(geogebra),
+      help('Select the translator (backend) to be used')
+    ],
+    [
       opt(version),
       type(boolean),
       shortflags([v]),

@@ -44,8 +44,14 @@ main :-
     phrase(parse(AffList), TokenList)
   ;
     write('Compilation error. Aborting'), nl, fail
-  ),
-  write(AffList), nl,
+  ), !,
+  
+  % Load the correct translator
+  option(translator(Trans)),
+  use_module(translators/Trans/Trans),
+  translate(AffList, Translation),
+
+  write(Translation), nl,
   halt.
 
 print_usage_and_halt :-
