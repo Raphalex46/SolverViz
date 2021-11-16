@@ -1,0 +1,9 @@
+A = point(0.5, 0.5).
+B = point(1.0, 0.5).
+C = point(2.0, 0.4).
+D = point(0.5, 2.3).
+
+E = line(A, B).
+F = line(C, D).
+
+Z = inter(E, F).
