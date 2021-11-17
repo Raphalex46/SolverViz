@@ -6,11 +6,31 @@ translate([AffHead | AffTail], Translation) :-
   AffHead = aff(Output, cons(ConsName, Input)),
   % Translate the constructor name
   translate_command_name(ConsName, GeoName),
-  % Translate the individual command
-  export_command(GeoName, Input, Output, TranslationHead),
+  % If it is a point, translate into an element
+  (
+    GeoName = 'Point'
+  ->
+    export_element(point, Input, Output, TranslationHead)
+  ;
+    % Translate the individual command
+    export_command(GeoName, Input, Output, TranslationHead)
+  ),
   % Recursive call
   translate(AffTail, TranslationTail),
   string_concat(TranslationHead, TranslationTail, Translation).
+
+% export_element(+ElementType, +Coords, +ElementName, -Translation)
+% Helper predicate to export an element (mostly points)
+export_element(ElementType, [X, Y], ElementName, Translation) :-
+  format(
+    string(Translation),
+    '<element type="~w" label="~w">~n\c
+    <show object="true" label="true"/>~n\c
+    <coords x="~w" y="~w" z="1"/>~n\c
+    </element>~n',
+    [ElementType, ElementName, X, Y]
+  ).
+
 
 % export_command(+CommandName, +Input, +Output, -Translation)
 % Helper predicate to export a single command
