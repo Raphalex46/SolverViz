@@ -45,7 +45,7 @@ export(Translation) :-
 translate([], "").
 translate([AffHead | AffTail], Translation) :-
   % Deconstruct the affectation
-  AffHead = aff(Output, cons(ConsName, Input)),
+  AffHead = element(ConsName, [name=Output], Input),
   % Translate the constructor name
   translate_command_name(ConsName, GeoName),
   % If it is a point, translate into an element
@@ -64,13 +64,16 @@ translate([AffHead | AffTail], Translation) :-
 % export_element(+ElementType, +Coords, +ElementName, -Translation)
 % Helper predicate to export an element (mostly points)
 export_element(ElementType, [X, Y], ElementName, Translation) :-
+  % Deconstruct the element
+  X = element(literal, [value=XVal], []),
+  Y = element(literal, [value=YVal], []),
   format(
     string(Translation),
     '<element type="~w" label="~w">~n\c
     <show object="true" label="true"/>~n\c
     <coords x="~w" y="~w" z="1"/>~n\c
     </element>~n',
-    [ElementType, ElementName, X, Y]
+    [ElementType, ElementName, XVal, YVal]
   ).
 
 
@@ -94,12 +97,14 @@ export_command(CommandName, Input, Output, Translation) :-
 % Helper predicate to export an input
 export_input([], _, "").
 export_input([InputHead | InputTail], InputLength, Translation) :-
+  % Deconstruct the input
+  InputHead = element(_, [value=InputValue], []),
   length(InputTail, RemainingLength),
   Index is InputLength - RemainingLength - 1,
   format(
     string(TranslationHead),
     'a~w="~w"~n',
-    [Index, InputHead]
+    [Index, InputValue]
   ),
   export_input(InputTail, InputLength, TranslationTail),
   string_concat(TranslationHead, TranslationTail, Translation).

@@ -36,20 +36,12 @@ main :-
 
   % Read input file
   PositionalArgs = [Filename],
-  read_file_to_string(Filename, InputString, []),
-  % Tokenize input string
-  tokenize_atom(InputString, TokenList),
-  % Call translator
-  (
-    phrase(parse(AffList), TokenList)
-  ;
-    write('Compilation error. Aborting'), nl, fail
-  ), !,
-  
+  % Parse XML
+  load_xml(Filename, DOM, [space(remove)]),
   % Load the correct translator
   option(translator(Trans)),
   use_module(translators/Trans/Trans),
-  translate(AffList, Translation),
+  translate(DOM, Translation),
   export(Translation),
   halt.
 
