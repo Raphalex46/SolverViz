@@ -1,4 +1,46 @@
-:- module(geogebra, [translate/2]).
+:- module(geogebra, [translate/2, export/1]).
+:- use_module(library(unix)).
+
+% export(+Translation)
+% Will export the translation to a readable geogebra file.
+export(Translation) :-
+  format(
+    string(FinalTranslation),
+    '<geogebra format="4.0">~n\c
+     <construction>~n\c
+     ~w~n\c
+     </construction>~n\c
+     </geogebra>~n\c
+    ',
+    [Translation]
+  ),
+  % Fetch output filename
+  load:option(output(Filename)),
+  % Add the GGB extension to the final file
+  atom_concat(Filename, '.ggb', FilenameGGB),
+  % Open and write to the XML file
+  open('geogebra.xml', write, Stream),
+  write(Stream, FinalTranslation),
+  close(Stream),
+  % Finally, zip the XML to get the final file readable by Geogebra
+  fork(PidZIP),
+  (
+    PidZIP = child -> exec(zip(FilenameGGB, 'geogebra.xml'))
+  ;
+    % Don't care about the status of the child for now, we just want to
+    % wait.
+    wait(PidZIP, _)
+  ),
+  % Finally, remove the temporary XML file
+  fork(PidRM),
+  (
+    PidRM = child -> exec(rm('geogebra.xml'))
+  ;
+    wait(PidRM, _)
+  ).
+
+
+
 
 translate([], "").
 translate([AffHead | AffTail], Translation) :-

@@ -50,8 +50,7 @@ main :-
   option(translator(Trans)),
   use_module(translators/Trans/Trans),
   translate(AffList, Translation),
-
-  write(Translation), nl,
+  export(Translation),
   halt.
 
 print_usage_and_halt :-
