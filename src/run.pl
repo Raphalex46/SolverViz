@@ -2,7 +2,6 @@
 :- use_module(library(porter_stem)).
 
 :- use_module(load).
-:- use_module(parser).
 
 main :-
   parse_command_line(Opts, PositionalArgs),
