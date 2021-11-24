@@ -100,4 +100,10 @@ export_input([InputHead | InputTail], InputLength, Translation) :-
 % a geogebra command name.
 translate_command_name(line, 'Line').
 translate_command_name(point, 'Point').
-translate_command_name(inter, 'Intersect').
+translate_command_name(inter_line_line, 'Intersect').
+translate_command_name(inter_circle_line, 'Intersect').
+translate_command_name(line_vector, 'Direction').
+translate_command_name(circle_center_point, 'Circle').
+translate_command_name(radius, 'Radius').
+translate_command_name(line_point_vector, 'Line').
+translate_command_name(Com, Com).
