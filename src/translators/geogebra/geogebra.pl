@@ -43,16 +43,15 @@ translate([], []).
 translate([AffHead | AffTail], Translation) :-
   % Deconstruct the affectation
   AffHead = element(ConsName, [name=Output], Input),
-  % Translate the constructor name
-  translate_command_name(ConsName, GeoName),
   % If it is a point, translate into an element
+  translate_command_name(ConsName, GeoName),
   (
     GeoName = 'Point'
   ->
     export_element(point, Input, Output, TranslationHead)
   ;
     % Translate the individual command
-    export_command(GeoName, Input, Output, TranslationHead)
+    export_command(ConsName, Input, Output, TranslationHead)
   ),
   % Recursive call
   translate(AffTail, TranslationTail),
@@ -71,17 +70,32 @@ export_element(ElementType, [X, Y], ElementName, Translation) :-
               element(coords, [x=XVal, y=YVal, z=1], [])
             ]).
 
-% export_command(+CommandName, +Input, +Output, -Translation)
+% export_command(+OgCommandName, +Input, +Output, -Translation)
 % Helper predicate to export a single command
-export_command(CommandName, Input, Output, Translation) :-
+export_command(OgCommandName, Input, Output, Translation) :-
+  % Translate the command name
+  translate_command_name(OgCommandName, CommandName),
   length(Input, InputLength),
   export_input(Input, InputLength, InputTranslation),
+  % Check output arity and translate the output section
+  command_output_arity(OgCommandName, OutputArity),
+  export_output(Output, OutputArity, OutputTranslation),
   Translation =
     element(command, [name=CommandName], 
             [
              element(input, InputTranslation, []),
-             element(output, [a0=Output], [])
+             element(output, OutputTranslation, [])
             ]).
+
+% export_output(+Output, +OutputArity, -OutputTranslation)
+% This predicate generate a list for multi-output commands
+export_output(Output, 1, [a0=Output]).
+export_output(Output, OutputArity, [OutLabel=OutMod | TransTail]) :-
+  Index is OutputArity - 1,
+  atom_concat(a, Index, OutLabel),
+  atom_concat(Output, Index, OutMod),
+  export_output(Output, Index, TransTail).
+
 
 % export_input(+Input, +InputLength, -Translation)
 % Helper predicate to export an input
@@ -106,4 +120,13 @@ translate_command_name(line_vector, 'Direction').
 translate_command_name(circle_center_point, 'Circle').
 translate_command_name(radius, 'Radius').
 translate_command_name(line_point_vector, 'Line').
+translate_command_name(line_perpendicular_vector, 'PerpendicularVector').
 translate_command_name(Com, Com).
+
+% command_output_arity(+CommandName, -Arity)
+% Gives the number of output arguments of a command in Geogebra.
+% defaults to 1
+command_output_arity(inter_circle_line, 2).
+
+% Default case
+command_output_arity(_, 1).
