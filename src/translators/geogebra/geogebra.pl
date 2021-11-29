@@ -1,5 +1,6 @@
 :- module(geogebra, [translate/2, export/1]).
 :- use_module(library(unix)).
+:- use_module('../../commands').
 
 % export(+Translation)
 % Will export the translation to a readable geogebra file.
@@ -42,7 +43,13 @@ export(Translation) :-
 translate([], []).
 translate([AffHead | AffTail], Translation) :-
   % Deconstruct the affectation
-  AffHead = element(ConsName, [name=Output], Input),
+  AffHead = element(ConsName, [out=Output], Input),
+  % Check existence of constructor
+  (
+    command(ConsName, _, _)
+  ;
+    writef('Unknown command \'%w\'\n', [ConsName]), halt
+  ), !,
   % If it is a point, translate into an element
   translate_command_name(ConsName, GeoName),
   (
@@ -78,8 +85,10 @@ export_command(OgCommandName, Input, Output, Translation) :-
   length(Input, InputLength),
   export_input(Input, InputLength, InputTranslation),
   % Check output arity and translate the output section
-  command_output_arity(OgCommandName, OutputArity),
-  export_output(Output, OutputArity, OutputTranslation),
+  command(OgCommandName, _, OutputArity),
+  % Split the different output names
+  atom_split(Output, ' ', SplitOutput),
+  export_output(SplitOutput, OutputArity, OutputTranslation),
   Translation =
     element(command, [name=CommandName], 
             [
@@ -89,12 +98,17 @@ export_command(OgCommandName, Input, Output, Translation) :-
 
 % export_output(+Output, +OutputArity, -OutputTranslation)
 % This predicate generate a list for multi-output commands
+
+% Single output case
 export_output(Output, 1, [a0=Output]).
-export_output(Output, OutputArity, [OutLabel=OutMod | TransTail]) :-
+
+% Last output case
+export_output([Output], 1, [a0=Output]).
+export_output([OutputHead | OutputTail], OutputArity,
+              [OutLabel=OutputHead | TransTail]) :-
   Index is OutputArity - 1,
   atom_concat(a, Index, OutLabel),
-  atom_concat(Output, Index, OutMod),
-  export_output(Output, Index, TransTail).
+  export_output(OutputTail, Index, TransTail).
 
 
 % export_input(+Input, +InputLength, -Translation)
@@ -118,15 +132,6 @@ translate_command_name(inter_line_line, 'Intersect').
 translate_command_name(inter_circle_line, 'Intersect').
 translate_command_name(line_vector, 'Direction').
 translate_command_name(circle_center_point, 'Circle').
-translate_command_name(radius, 'Radius').
+translate_command_name(circle_radius, 'Radius').
 translate_command_name(line_point_vector, 'Line').
-translate_command_name(line_perpendicular_vector, 'PerpendicularVector').
-translate_command_name(Com, Com).
-
-% command_output_arity(+CommandName, -Arity)
-% Gives the number of output arguments of a command in Geogebra.
-% defaults to 1
-command_output_arity(inter_circle_line, 2).
-
-% Default case
-command_output_arity(_, 1).
+translate_command_name(vector_perpendicular_line, 'PerpendicularVector').
