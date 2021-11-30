@@ -87,7 +87,7 @@ export_command(OgCommandName, Input, Output, Translation) :-
   % Check output arity and translate the output section
   command(OgCommandName, _, OutputArity),
   % Split the different output names
-  atom_split(Output, ' ', SplitOutput),
+  atomic_list_concat(SplitOutput, ' ', Output),
   export_output(SplitOutput, OutputArity, OutputTranslation),
   Translation =
     element(command, [name=CommandName], 
