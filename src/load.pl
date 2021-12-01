@@ -2,7 +2,7 @@
 :- use_module(library(optparse)).
 
 % version predicate
-version('0.2.3').
+version('0.2.4').
 
 % option(Option)
 :- dynamic option/1.
