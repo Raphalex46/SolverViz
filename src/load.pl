@@ -2,7 +2,7 @@
 :- use_module(library(optparse)).
 
 % version predicate
-version('0.1.0').
+version('0.2.4').
 
 % option(Option)
 :- dynamic option/1.
@@ -10,6 +10,22 @@ version('0.1.0').
 % List of available options
 optspecs(
   [
+    [
+      opt(translator),
+      type(atom),
+      shortflags([t]),
+      longflags([translator]),
+      default(geogebra),
+      help('Select the translator (backend) to be used')
+    ],
+    [
+      opt(output),
+      type(atom),
+      shortflags([o]),
+      longflags([output]),
+      default(output),
+      help('Specify output file')
+    ],
     [
       opt(version),
       type(boolean),
