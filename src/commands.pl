@@ -20,3 +20,6 @@ command(inter_circle_line, 2, 2).
 command(line_direction, 1, 1).
 command(circle_center, 1, 1).
 command(circle_radius, 1, 1).
+
+% Symmetry
+command(point_symmetry, 2, 1).
