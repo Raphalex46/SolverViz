@@ -135,3 +135,4 @@ translate_command_name(circle_center_point, 'Circle').
 translate_command_name(circle_radius, 'Radius').
 translate_command_name(line_point_vector, 'Line').
 translate_command_name(vector_perpendicular_line, 'PerpendicularVector').
+translate_command_name(point_symmetry, 'Mirror').
