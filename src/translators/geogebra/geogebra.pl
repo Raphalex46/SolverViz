@@ -62,7 +62,8 @@ translate([AffHead | AffTail], Translation) :-
   ),
   % Recursive call
   translate(AffTail, TranslationTail),
-  Translation = [TranslationHead | TranslationTail].
+  %Translation = [TranslationHead | TranslationTail].
+  flatten([TranslationHead | TranslationTail], Translation).
 
 % export_element(+ElementType, +Coords, +ElementName, -Translation)
 % Helper predicate to export an element (mostly points)
@@ -78,6 +79,30 @@ export_element(ElementType, [X, Y], ElementName, Translation) :-
             ]).
 
 % export_command(+OgCommandName, +Input, +Output, -Translation)
+
+% Special case for circle_diameter
+export_command(circle_diameter, Input, Output, Translation) :-
+  atom_concat(Output, '_c', MiddleOutput),
+  Input = [element(_, [value=A], []), element(_, [value=B], [])],
+  % Start by generating the middle of the diameter (circle center)
+  TranslationHead =
+    element(command,
+            [name='Midpoint'],
+            [
+              element(input, [a0=A, a1=B], []),
+              element(output, [a0=MiddleOutput], [])
+            ]),
+  % Then generate the actual circle (middle point and one of the diameter
+  % points)
+  TranslationTail = 
+    element(command,
+            [name='Circle'],
+            [
+              element(input, [a0=MiddleOutput, a1=A], []),
+              element(output, [a0=Output], [])
+            ]),
+  Translation = [TranslationHead, TranslationTail].
+
 % Helper predicate to export a single command
 export_command(OgCommandName, Input, Output, Translation) :-
   % Translate the command name
@@ -133,6 +158,11 @@ translate_command_name(inter_circle_line, 'Intersect').
 translate_command_name(line_vector, 'Direction').
 translate_command_name(circle_center_point, 'Circle').
 translate_command_name(circle_radius, 'Radius').
+translate_command_name(circle_center, 'Center').
 translate_command_name(line_point_vector, 'Line').
 translate_command_name(vector_perpendicular_line, 'PerpendicularVector').
 translate_command_name(point_symmetry, 'Mirror').
+translate_command_name(distance, 'Distance').
+
+% General case
+translate_command_name(Command, Command).
