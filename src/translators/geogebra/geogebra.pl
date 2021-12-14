@@ -163,6 +163,7 @@ translate_command_name(line_point_vector, 'Line').
 translate_command_name(vector_perpendicular_line, 'PerpendicularVector').
 translate_command_name(point_symmetry, 'Mirror').
 translate_command_name(distance, 'Distance').
+translate_command_name(text, 'Text').
 
 % General case
 translate_command_name(Command, Command).

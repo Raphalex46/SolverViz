@@ -27,3 +27,6 @@ command(point_symmetry, 2, 1).
 
 % Distance
 command(distance, 2, 1).
+
+% Miscellaneous
+command(text, 1, 1).
